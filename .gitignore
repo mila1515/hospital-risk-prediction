@@ -151,6 +151,7 @@ activemq-data/
 .env
 .envrc
 .venv
+.conda/
 env/
 venv/
 ENV/
@@ -199,7 +200,21 @@ cython_debug/
 #   that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
 #   and can be added to the global gitignore or merged into this file. However, if you prefer, 
 #   you could uncomment the following to ignore the entire vscode folder
-# .vscode/
+.vscode/
+.history/
+.virtual_documents/
+dashboard/Untitled.ipynb
+
+# Downloaded public datasets (recreated by the extract pipeline)
+data/raw/mimic_iv_demo/
+data/raw/nhs_scotland/
+data/raw/cqc/
+data/raw/patient_vitals_*.csv
+data/processed/
+
+# Generated experiment artifacts (recreated by EDA/training commands)
+reports/
+ml/models/*.joblib
 # Temporary file for partial code execution
 tempCodeRunnerFile.py
 
