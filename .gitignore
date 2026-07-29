@@ -205,12 +205,8 @@ cython_debug/
 .virtual_documents/
 dashboard/Untitled.ipynb
 
-# Downloaded public datasets (recreated by the extract pipeline)
-data/raw/mimic_iv_demo/
-data/raw/nhs_scotland/
-data/raw/cqc/
-data/raw/patient_vitals_*.csv
-data/processed/
+# Local datasets (raw and processed data are recreated by the pipeline)
+data/
 
 # Generated experiment artifacts (recreated by EDA/training commands)
 reports/
