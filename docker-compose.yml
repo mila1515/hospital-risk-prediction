@@ -1,45 +1,54 @@
+name: hospital-waiting-time-analytics
+
+x-app: &app
+  build:
+    context: .
+  image: hospital-waiting-time-analytics:local
+  init: true
+  environment: &app-environment
+    PGHOST: db
+    PGPORT: "5432"
+    PGDATABASE: ${POSTGRES_DB:-hospital}
+    PGUSER: ${POSTGRES_USER:-postgres}
+    PGPASSWORD: ${POSTGRES_PASSWORD:-postgres}
+
 services:
   db:
     image: postgres:16
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: hospital
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-hospital}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
       - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 12
 
-  app:
-    build: .
-    environment:
-      PGHOST: db
-      PGPORT: "5432"
-      PGDATABASE: hospital
-      PGUSER: postgres
-      PGPASSWORD: postgres
+  pipeline:
+    <<: *app
+    restart: "no"
+    command: >-
+      sh -c "python etl/extract/download_waiting_times.py &&
+      python etl/transform/transform_waiting_times.py &&
+      python etl/load/load_waiting_times_to_postgres.py"
     depends_on:
-      - db
-    volumes:
-      - .:/app
-    working_dir: /app
+      db:
+        condition: service_healthy
 
   streamlit:
-    build: .
-    command: streamlit run dashboard/streamlit_app.py --server.address 0.0.0.0 --server.port 8501
-    environment:
-      PGHOST: db
-      PGPORT: "5432"
-      PGDATABASE: hospital
-      PGUSER: postgres
-      PGPASSWORD: postgres
+    <<: *app
+    restart: unless-stopped
     depends_on:
-      - db
+      pipeline:
+        condition: service_completed_successfully
     ports:
       - "8501:8501"
-    volumes:
-      - .:/app
-    working_dir: /app
 
 volumes:
   pgdata:

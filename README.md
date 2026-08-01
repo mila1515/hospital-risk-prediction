@@ -1,360 +1,263 @@
-# Hospital Risk Prediction 🏥🤖
+# Emergency Department Waiting Time Analytics
 
-ETL and AI-powered healthcare analytics system for patient risk prediction, hospital monitoring, and intelligent decision support.
+> Analyse des temps d'attente aux urgences afin d'identifier les périodes et les établissements nécessitant une attention prioritaire.
 
----
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?logo=streamlit&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Portfolio_project-7B61FF)
 
-# 📌 Project Overview
+## Problématique
 
-This repository contains a healthcare analytics pipeline built with Python to:
+Les services d'urgence doivent absorber des volumes de patients variables tout en respectant des objectifs de délai de prise en charge.
 
-* Extract and transform patient vitals data
-* Load cleaned data into PostgreSQL
-* Train a risk prediction model
-* Visualize results with a Streamlit dashboard
+Lorsque les données d'activité sont dispersées, il devient difficile d'identifier rapidement :
 
-The system combines:
+- les établissements où les attentes sont les plus importantes ;
+- les périodes de forte tension ;
+- les services qui respectent le moins l'objectif des quatre heures ;
+- les situations à analyser en priorité.
 
-* Data Engineering
-* Machine Learning
-* Healthcare Analytics
-* Dashboarding
+## Objectif
 
----
+Construire un pipeline de données et un tableau de bord permettant de répondre à la question suivante :
 
-# 🎯 Problem Statement
+> **Quels établissements et quelles périodes combinent un volume élevé de passages aux urgences et un faible respect de l'objectif de prise en charge en moins de quatre heures ?**
 
-Hospitals collect massive amounts of patient data every day:
+La solution aide à détecter les tensions et à prioriser les analyses. Elle ne prétend pas expliquer à elle seule les causes des attentes ni remplacer une décision opérationnelle.
 
-* Vital signs
-* Medical measurements
-* Patient surveys
-* Admission details
+## Données
 
-These data are often:
+Le projet utilise les données publiques mensuelles **Accident & Emergency Activity and Waiting Times** de NHS Scotland.
 
-* fragmented
-* underutilized
-* manually processed
-* difficult to analyze quickly
+- 39 583 observations ;
+- 103 sites hospitaliers ;
+- 14 organismes hospitaliers ;
+- période couverte : juillet 2007 à mai 2026 ;
+- services d'urgence de type 1 et de type 3 ;
+- passages planifiés et non planifiés ;
+- dépassements de 4, 8 et 12 heures.
 
-This project automates the workflow from raw medical records to risk scoring and dashboard monitoring.
+Source : [NHS Scotland Open Data](https://www.opendata.nhs.scot/dataset/997acaa5-afe0-49d9-b333-dcf84584603d)
 
----
+### Périmètre principal
 
-# ✅ Solution
+L'analyse principale porte sur :
 
-The platform provides:
+- les passages **non planifiés** ;
+- les services d'urgence principaux **Type 1** ;
+- une granularité mensuelle ;
+- le respect de l'objectif de prise en charge en moins de quatre heures.
 
-✔ A Python-based ETL pipeline
-✔ Risk score calculation and classification
-✔ Machine Learning risk prediction
-✔ PostgreSQL storage for analytics
-✔ Streamlit dashboard for visualization
+Ce périmètre évite les doubles comptes et permet une comparaison cohérente entre les sites.
+Après filtrage et regroupement, le fichier analytique contient 7 023 observations sur 35 sites.
 
----
+## Indicateurs suivis
 
-# 🏗 System Architecture
+- nombre total de passages aux urgences ;
+- nombre de prises en charge en moins de quatre heures ;
+- nombre de passages dépassant 4, 8 et 12 heures ;
+- taux pondéré de prise en charge en moins de quatre heures ;
+- évolution mensuelle de la performance ;
+- classement des sites par volume et taux de conformité ;
+- identification des sites à fort volume et faible performance.
 
-```text
-Patient data files / Public demo datasets
-            ↓
-       Python ETL scripts
- (extract / transform / load)
-            ↓
-      PostgreSQL database
-            ↓
-   Machine Learning training
-            ↓
-    Streamlit dashboard app
-```
+## Premier constat métier
 
----
+Entre juin 2025 et mai 2026, pour les passages non planifiés dans les urgences de type 1 :
 
-# 🧠 Machine Learning
+| Indicateur | Résultat |
+| --- | ---: |
+| Passages enregistrés | 1 380 136 |
+| Pris en charge en moins de 4 heures | 63,0 % |
+| Passages dépassant 4 heures | 510 592 |
+| Taux observé en mai 2026 | 62,4 % |
 
-## Objective
+Ces chiffres montrent l'intérêt d'un outil de pilotage permettant de localiser les tensions et de suivre leur évolution.
 
-Predict patient risk level based on vital signs and admission metadata.
-
----
-
-## Input Features
-
-* age
-* temperature_c
-* systolic_bp
-* diastolic_bp
-* spo2
-* heart_rate
-* glucose_mg_dl
-* pain_score
-* admission_type
-
----
-
-## Target
-
-Risk classification:
-
-* Low
-* Medium
-* High
-* Critical
-
----
-
-## ML Implementation
-
-### Implemented
-
-* Reproducible exploratory analysis with JSON and interactive HTML reports
-* Dummy baseline, class-balanced Logistic Regression, and Random Forest comparison
-* Stratified cross-validation and holdout evaluation
-* Macro F1, balanced accuracy, weighted F1, confusion matrix, and feature importance
-* Model and dataset traceability through metadata and SHA256 fingerprints
-
-> **Methodology note:** the current `risk_level` is generated from deterministic rules applied to the same vital signs used by the models. The experiment therefore measures rule reproduction, not the prediction of an independently observed clinical outcome. See `docs/DATA_SCIENCE_METHODOLOGY.md`.
-
-### Possible Extensions
-
-* Logistic Regression
-* XGBoost
-* LightGBM
-* Model explainability
-
----
-
-# 🔄 ETL Pipeline
-
-## Extract
-
-The extraction script builds raw patient vitals data from the MIMIC-IV Demo dataset and can optionally download open data sources for hospital KPI analysis.
-
-Script: `etl/extract/build_raw_from_mimic_iv_demo.py`
-
-## Transform
-
-The transformation script cleans and normalizes vitals, imputes missing values, computes a risk score, and assigns a risk level.
-
-Script: `etl/transform/transform_patient_vitals.py`
-
-## Load
-
-The load script inserts cleaned CSV data into PostgreSQL and supports multiple dataset types including `patient_vitals`.
-
-Script: `etl/load/load_patient_vitals_to_postgres.py`
-
----
-
-# 📊 Dashboard
-
-The dashboard is built with Streamlit and reads from PostgreSQL.
-
-File: `dashboard/streamlit_app.py`
-
-Dashboard features:
-
-* Patient risk distribution
-* Vital sign histograms
-* Daily risk trends
-* Interactive risk prediction form
-* Model probability visualization
-
----
-
-# 🛠 Tech Stack
-
-| Category         | Technology                |
-| ---------------- | ------------------------- |
-| Programming      | Python                    |
-| Data Analysis    | Pandas, NumPy             |
-| Machine Learning | scikit-learn              |
-| Database         | PostgreSQL                |
-| ETL              | Python scripts            |
-| Dashboard        | Streamlit, Plotly         |
-| Version Control  | Git                       |
-
----
-
-# 📁 Project Structure
+## Architecture
 
 ```text
-hospital-risk-prediction/
-│
-├── data/
-│   ├── raw/
-│   └── processed/
-│
-├── etl/
-│   ├── extract/
-│   ├── transform/
-│   └── load/
-│
-├── database/
-├── docs/
-├── dashboard/
-│   └── streamlit_app.py
-├── ml/
-│   ├── models/
-│   └── training/
-├── notebooks/
-├── requirements.txt
-├── README.md
-└── docker-compose.yml
+NHS Scotland Open Data
+          |
+          v
+Nettoyage et normalisation Python
+          |
+          v
+      PostgreSQL
+          |
+          v
+  Dashboard Streamlit
+          |
+          v
+Identification des sites et périodes prioritaires
 ```
 
----
+## Fonctionnalités du dashboard
 
-# 📚 Data Sources
+- filtres par période, organisme hospitalier et site ;
+- évolution mensuelle du respect de l'objectif des quatre heures ;
+- calcul pondéré du taux à partir des volumes réels ;
+- comparaison des établissements ;
+- classement des sites selon leur volume et leur performance.
 
-## Supported / referenced sources
+## Technologies
 
-* MIMIC-IV Demo (PhysioNet)
-* NHS Scotland A&E open data
-* CQC Adult Inpatient Survey 2024 open data
+| Domaine | Technologies |
+| --- | --- |
+| Traitement des données | Python, pandas |
+| Base de données | PostgreSQL |
+| Visualisation | Streamlit, Plotly |
+| Conteneurisation | Docker, Docker Compose |
+| Qualité | unittest |
 
----
+## Structure utile
 
-# 🚀 Getting Started
+```text
+hospital-waiting-time-analytics/
+|-- data/
+|   `-- raw/nhs_scotland/
+|-- etl/
+|   |-- extract/
+|   |-- transform/
+|   `-- load/
+|-- dashboard/
+|   `-- streamlit_app.py
+|-- tests/
+|-- docker-compose.yml
+|-- Dockerfile
+|-- requirements.txt
+`-- README.md
+```
 
-## 1. Clone the repository
+## Démarrage rapide avec Docker
+
+La configuration par défaut suffit pour un usage local. Pour la personnaliser :
 
 ```bash
-git clone https://github.com/your-username/hospital-risk-prediction.git
-cd hospital-risk-prediction
+cp .env.example .env
 ```
 
-## 2. Create a virtual environment
+Sous Windows PowerShell, utilisez `Copy-Item .env.example .env`. Modifiez ensuite les
+variables `POSTGRES_DB`, `POSTGRES_USER` et `POSTGRES_PASSWORD` dans `.env`.
+
+```bash
+docker compose up --build
+```
+
+Cette commande télécharge les données, les transforme, les charge dans PostgreSQL, puis démarre le dashboard sur :
+
+```text
+http://localhost:8501
+```
+
+Les identifiants PostgreSQL par défaut sont réservés au développement local. Pour arrêter
+les services, utilisez `docker compose down` ; ajoutez `--volumes` uniquement si vous
+souhaitez aussi supprimer la base locale.
+
+## Installation manuelle
+
+### 1. Cloner le dépôt
+
+```bash
+git clone https://github.com/mila1515/hospital-waiting-time-analytics.git
+cd hospital-waiting-time-analytics
+```
+
+### 2. Créer l'environnement Python
 
 ```bash
 python -m venv venv
 ```
 
-### Activate environment
-
-#### Windows (PowerShell)
+Sous Windows PowerShell :
 
 ```powershell
 .\venv\Scripts\Activate.ps1
 ```
 
-#### Linux / macOS
+Sous Linux ou macOS :
 
 ```bash
 source venv/bin/activate
 ```
 
-## 3. Install dependencies
+### 3. Installer les dépendances
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
-
-# ▶️ Run the pipeline
-
-## Extract raw data
+### 4. Télécharger les données
 
 ```bash
-python etl/extract/build_raw_from_mimic_iv_demo.py
+python etl/extract/download_waiting_times.py
 ```
 
-## Transform cleaned data
+### 5. Transformer les données
 
 ```bash
-python etl/transform/transform_patient_vitals.py
+python etl/transform/transform_waiting_times.py
 ```
 
-## Load into PostgreSQL
+Le fichier analytique est enregistré dans `data/processed/waiting_times_processed.csv`.
 
-```bash
-python etl/load/load_patient_vitals_to_postgres.py --csv data/processed/patient_vitals_processed.csv --dataset patient_vitals
-```
-
-> Set `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, and `PGPASSWORD` if you use a custom PostgreSQL instance.
-
----
-
-# 🧪 Train the model
-
-## Generate the exploratory analysis
-
-```bash
-python ml/analysis/analyze_dataset.py
-```
-
-This creates `reports/eda/summary.json` and an interactive report at
-`reports/eda/eda_report.html`.
-
-## Compare and train models
-
-```bash
-python ml/training/train_risk_model.py --input data/processed/patient_vitals_processed.csv --model-out ml/models/risk_model.joblib
-```
-
-Evaluation artifacts are written to `reports/model/`. Model selection is based on
-cross-validated macro F1 to account for class imbalance.
-
-## Run tests
-
-```bash
-python -m unittest discover -s tests -v
-```
-
----
-
-# 📈 Run the dashboard
+À ce stade, le dashboard peut déjà fonctionner en mode local directement depuis ce CSV :
 
 ```bash
 streamlit run dashboard/streamlit_app.py
 ```
 
-The app reads from PostgreSQL and loads `ml/models/risk_model.joblib` for the prediction form.
+PostgreSQL reste disponible pour démontrer le chargement et l'utilisation d'une base de données.
 
----
+### 6. Démarrer PostgreSQL
 
-# 🔐 Data Privacy
+```bash
+docker compose up -d db
+```
 
-This project uses:
+### 7. Charger les données
 
-* public datasets
-* anonymized or demo patient data
-* simulated hospital metrics
+```bash
+python etl/load/load_waiting_times_to_postgres.py --host localhost --port 5433 --db hospital --user postgres --password postgres
+```
 
-No sensitive personal medical data is included.
+### 8. Lancer le dashboard
 
----
+Sous Windows PowerShell :
 
-# 📌 Project Goals
+```powershell
+$env:PGHOST="localhost"
+$env:PGPORT="5433"
+$env:PGDATABASE="hospital"
+$env:PGUSER="postgres"
+$env:PGPASSWORD="postgres"
+streamlit run dashboard/streamlit_app.py
+```
 
-This project demonstrates skills in:
+## Limites
 
-* Data engineering
-* ETL workflows
-* Machine learning
-* Dashboard development
-* Healthcare analytics
+Les données sont mensuelles et agrégées. Elles ne contiennent pas :
 
----
+- les temps d'attente individuels ;
+- les horaires d'arrivée ;
+- les effectifs médicaux disponibles ;
+- le nombre de lits disponibles ;
+- la gravité clinique des patients ;
+- les causes opérationnelles des retards.
 
-# 👨‍💻 Author
+Le projet permet donc de **détecter et prioriser les situations problématiques**, mais pas d'établir une causalité ni de recommander automatiquement un niveau précis de personnel.
 
-Data & AI student passionate about:
+## Évolutions possibles
 
-* healthcare innovation
-* intelligent systems
-* predictive analytics
-* data-driven decision making
+- créer des alertes lorsque le taux passe sous un seuil défini ;
+- prévoir le taux du mois suivant à partir de l'historique ;
+- intégrer des données de personnel, de lits et d'occupation afin d'étudier les causes des attentes.
 
----
+## Avertissement
 
-# ⭐ Potential Use Cases
+Ce projet est un démonstrateur analytique réalisé à partir de données publiques agrégées. Il ne constitue pas un dispositif médical et ne doit pas être utilisé seul pour prendre des décisions cliniques ou opérationnelles.
 
-* Hospitals
-* Clinics
-* Healthcare analytics platforms
-* Smart monitoring systems
-* Medical decision support systems
+## Autrice
 
+**Djamila** — Data Analyst · Business Intelligence · Intelligence Artificielle

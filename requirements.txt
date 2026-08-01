@@ -1,7 +1,4 @@
-numpy
-pandas
-scikit-learn
-psycopg2-binary
-odfpy
-streamlit
-plotly
+pandas>=2.2,<4
+plotly>=5.24,<7
+psycopg2-binary>=2.9,<3
+streamlit>=1.40,<2
