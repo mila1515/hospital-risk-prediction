@@ -101,6 +101,14 @@ Identification des sites et périodes prioritaires
 - comparaison des établissements ;
 - classement des sites selon leur volume et leur performance.
 
+## Aperçu du dashboard
+
+![Vue d'ensemble des indicateurs du dashboard](image/README/1785706638335.png)
+
+![Évolution mensuelle des passages et du respect de l'objectif des quatre heures](image/README/1785706630351.png)
+
+![Matrice des établissements à analyser en priorité](image/README/1785706691855.png)
+
 ## Technologies
 
 | Domaine | Technologies |
@@ -171,7 +179,6 @@ python -m venv venv
 ```
 
 Sous Windows PowerShell :
-
 ```powershell
 .\venv\Scripts\Activate.ps1
 ```
