@@ -109,6 +109,41 @@ Identification des sites et périodes prioritaires
 
 ![Matrice des établissements à analyser en priorité](image/README/1785706691855.png)
 
+![Classement des sites par nombre de dépassements de quatre heures](image/README/image.png)
+
+## Interprétation des résultats
+
+Avec les filtres proposés par défaut, l'analyse couvre la période de **juin 2024 à mai 2026** pour l'ensemble des organismes et des sites disponibles.
+
+### Une performance globale sous tension
+
+Sur 2 731 341 passages, 63,6 % des patients sont pris en charge en moins de quatre heures. Les données comptabilisent 994 248 dépassements de quatre heures, dont 355 750 dépassent huit heures et 157 692 dépassent douze heures. Les catégories de huit et douze heures sont incluses dans les dépassements de quatre heures et ne doivent donc pas être additionnées entre elles.
+
+### Une dégradation entre le début et la fin de la période
+
+| Mois | Passages | Dépassements de 4 h | Pris en charge < 4 h |
+| --- | ---: | ---: | ---: |
+| Juin 2024 | 116 057 | 40 350 | 65,2 % |
+| Mai 2026 | 123 755 | 46 478 | 62,4 % |
+
+Le volume augmente de 6,6 %, tandis que le taux de prise en charge en moins de quatre heures diminue de 2,8 points. Le meilleur résultat mensuel est observé en mai 2025 avec 67,1 %. Décembre 2024 constitue le mois le plus dégradé avec 58,5 % et 46 538 dépassements. Cette observation peut signaler une pression saisonnière, mais les données agrégées ne permettent pas d'en établir la cause.
+
+### Des difficultés concentrées sur quelques sites
+
+Le tableau est classé selon le **nombre absolu de dépassements de quatre heures**. Les dix premiers sites concentrent 704 854 dépassements, soit 70,9 % du total observé. S314H porte la charge la plus importante avec 112 479 dépassements, tandis que N101H présente le taux de prise en charge en moins de quatre heures le plus faible du groupe, à 42,6 %.
+
+Le volume ne suffit cependant pas à expliquer la performance. G513H prend en charge 90,4 % de ses patients en moins de quatre heures malgré 150 183 passages, alors que G405H atteint seulement 49,9 % pour 201 471 passages. Ces écarts justifient une analyse complémentaire des pratiques et des contraintes locales.
+
+### Comment lire la priorité
+
+La matrice et le tableau sont complémentaires :
+
+- la matrice repère les sites combinant un volume important et un faible taux de prise en charge en moins de quatre heures ;
+- la taille des bulles représente le nombre de dépassements de quatre heures ;
+- le tableau fournit le classement exact des sites selon la charge totale de retards.
+
+Un site à fort volume n'est donc pas automatiquement peu performant. La priorité doit être évaluée en croisant le volume, le nombre de dépassements et le taux de prise en charge en moins de quatre heures. Enfin, ces résultats servent à détecter les tensions, mais ne permettent pas d'en déterminer les causes sans données supplémentaires sur les effectifs, les lits, la gravité clinique ou l'organisation locale.
+
 ## Technologies
 
 | Domaine | Technologies |
