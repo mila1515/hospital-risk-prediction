@@ -3,6 +3,7 @@ import unittest
 import pandas as pd
 
 from dashboard.streamlit_app import aggregate_monthly, aggregate_sites, weighted_rate
+from dashboard.site_names import site_label
 
 
 class DashboardAnalyticsTests(unittest.TestCase):
@@ -49,6 +50,12 @@ class DashboardAnalyticsTests(unittest.TestCase):
         empty_volume = self.data.copy()
         empty_volume[["attendances", "within_4_hours", "over_4_hours"]] = 0
         self.assertEqual(weighted_rate(empty_volume), 0.0)
+
+    def test_site_label_includes_name_and_source_code(self):
+        self.assertEqual(site_label("N101H"), "Aberdeen Royal Infirmary (N101H)")
+
+    def test_site_label_falls_back_to_unknown_code(self):
+        self.assertEqual(site_label("UNKNOWN"), "UNKNOWN")
 
 
 if __name__ == "__main__":

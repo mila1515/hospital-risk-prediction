@@ -10,6 +10,8 @@ import plotly.graph_objects as go
 import psycopg2
 import streamlit as st
 
+from dashboard.site_names import site_label
+
 
 DEFAULT_CSV = Path("data/processed/waiting_times_processed.csv")
 
@@ -131,7 +133,12 @@ def apply_filters(data: pd.DataFrame) -> pd.DataFrame:
     available_sites = sorted(
         data.loc[data["health_board_code"].isin(selected_boards), "site_code"].dropna().unique().tolist()
     )
-    selected_sites = st.sidebar.multiselect("Sites", available_sites, default=available_sites)
+    selected_sites = st.sidebar.multiselect(
+        "Sites",
+        available_sites,
+        default=available_sites,
+        format_func=site_label,
+    )
 
     mask = (
         data["month_date"].dt.date.between(start_date, end_date)
@@ -193,6 +200,7 @@ def render_monthly_trends(data: pd.DataFrame) -> None:
 
 def render_site_priorities(data: pd.DataFrame) -> None:
     sites = aggregate_sites(data)
+    sites["site_name"] = sites["site_code"].map(site_label)
     st.subheader("Établissements à analyser en priorité")
     st.caption(
         "Les sites situés en bas à droite combinent un volume important et un faible taux de prise en charge en moins de quatre heures."
@@ -204,7 +212,8 @@ def render_site_priorities(data: pd.DataFrame) -> None:
         y="pct_within_4_hours",
         size="over_4_hours",
         color="health_board_code",
-        hover_name="site_code",
+        hover_name="site_name",
+        hover_data={"site_code": True, "site_name": False},
         labels={
             "attendances": "Passages",
             "pct_within_4_hours": "Pris en charge < 4 h (%)",
@@ -221,7 +230,8 @@ def render_site_priorities(data: pd.DataFrame) -> None:
     ranking = ranking.rename(
         columns={
             "health_board_code": "Organisme",
-            "site_code": "Site",
+            "site_code": "Code",
+            "site_name": "Établissement",
             "attendances": "Passages",
             "over_4_hours": "Dépassements de 4 h",
             "pct_within_4_hours": "Pris en charge < 4 h (%)",
@@ -229,7 +239,14 @@ def render_site_priorities(data: pd.DataFrame) -> None:
     )
     st.dataframe(
         ranking[
-            ["Organisme", "Site", "Passages", "Dépassements de 4 h", "Pris en charge < 4 h (%)"]
+            [
+                "Organisme",
+                "Établissement",
+                "Code",
+                "Passages",
+                "Dépassements de 4 h",
+                "Pris en charge < 4 h (%)",
+            ]
         ],
         width="stretch",
         hide_index=True,

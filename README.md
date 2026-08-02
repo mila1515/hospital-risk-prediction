@@ -64,13 +64,15 @@ Après filtrage et regroupement, le fichier analytique contient 7 023 observatio
 
 ## Premier constat métier
 
-Entre juin 2025 et mai 2026, pour les passages non planifiés dans les urgences de type 1 :
+Entre juin 2024 et mai 2026, pour les passages non planifiés dans les urgences de type 1 :
 
 | Indicateur | Résultat |
 | --- | ---: |
-| Passages enregistrés | 1 380 136 |
-| Pris en charge en moins de 4 heures | 63,0 % |
-| Passages dépassant 4 heures | 510 592 |
+| Passages enregistrés | 2 731 341 |
+| Pris en charge en moins de 4 heures | 63,6 % |
+| Passages dépassant 4 heures | 994 248 |
+| Passages dépassant 8 heures | 355 750 |
+| Passages dépassant 12 heures | 157 692 |
 | Taux observé en mai 2026 | 62,4 % |
 
 Ces chiffres montrent l'intérêt d'un outil de pilotage permettant de localiser les tensions et de suivre leur évolution.
@@ -121,13 +123,30 @@ Les captures ci-dessous utilisent les filtres par défaut : **juin 2024 à mai 2
 
 ![Matrice des établissements à analyser en priorité](image/README/1785706691855.png)
 
-**Interprétation —** Les sites situés en bas à droite combinent un volume élevé et un faible respect du seuil de quatre heures ; la taille des bulles représente le nombre de dépassements. N101H (42,6 % sous quatre heures) et V217H (45,4 %) présentent les performances les plus faibles parmi les sites dépassant 50 000 passages. À l'inverse, G513H atteint 90,4 % malgré 150 183 passages : un volume élevé n'entraîne donc pas automatiquement une faible performance.
+**Interprétation —** Les sites situés en bas à droite combinent un volume élevé et un faible respect du seuil de quatre heures ; la taille des bulles représente le nombre de dépassements. Aberdeen Royal Infirmary (`N101H`, 42,6 % sous quatre heures) et Forth Valley Royal Hospital (`V217H`, 45,4 %) présentent les performances les plus faibles parmi les sites dépassant 50 000 passages. À l'inverse, Royal Hospital for Children Glasgow (`G513H`) atteint 90,4 % malgré 150 183 passages : un volume élevé n'entraîne donc pas automatiquement une faible performance.
 
 ### 4. Classement des sites à analyser
 
 ![Classement des sites par nombre de dépassements de quatre heures](image/README/image.png)
 
-**Interprétation —** Le tableau classe les sites selon le nombre absolu de dépassements, et non selon leur seul taux de conformité. Les dix premiers concentrent 704 854 dépassements, soit 70,9 % du total. S314H porte la charge la plus importante avec 112 479 dépassements. N101H constitue toutefois une priorité forte en proportion, puisque 57,4 % de ses passages dépassent quatre heures. Le croisement du volume, du nombre de retards et du taux de conformité permet ainsi de distinguer la charge opérationnelle de la performance relative.
+**Interprétation —** Le tableau classe les sites selon le nombre absolu de dépassements, et non selon leur seul taux de conformité. Les dix premiers concentrent 704 854 dépassements, soit 70,9 % du total. Royal Infirmary of Edinburgh (`S314H`) porte la charge la plus importante avec 112 479 dépassements. Aberdeen Royal Infirmary (`N101H`) constitue toutefois une priorité forte en proportion, puisque 57,4 % de ses passages dépassent quatre heures. Le croisement du volume, du nombre de retards et du taux de conformité permet ainsi de distinguer la charge opérationnelle de la performance relative.
+
+#### Correspondance des sites du classement
+
+| Code | Établissement |
+| --- | --- |
+| `S314H` | Royal Infirmary of Edinburgh |
+| `G405H` | Queen Elizabeth University Hospital |
+| `G107H` | Glasgow Royal Infirmary |
+| `V217H` | Forth Valley Royal Hospital |
+| `N101H` | Aberdeen Royal Infirmary |
+| `L302H` | University Hospital Hairmyres |
+| `L308H` | University Hospital Wishaw |
+| `L106H` | University Hospital Monklands |
+| `F704H` | Victoria Hospital (NHS Fife) |
+| `S308H` | St John's Hospital |
+
+Noms issus du référentiel officiel [NHS Scotland Accident & Emergency Sites](https://www.opendata.nhs.scot/dataset/a877470a-06a9-492f-b9e8-992f758894d0/resource/1a4e3f48-3d9b-4769-80e9-3ef6d27852fe).
 
 > **Limite d'interprétation :** le dashboard détecte et hiérarchise les tensions, mais ne peut pas en expliquer les causes sans données sur les effectifs, les lits disponibles, la gravité clinique et l'organisation locale.
 
@@ -152,6 +171,7 @@ hospital-waiting-time-analytics/
 |   |-- transform/
 |   `-- load/
 |-- dashboard/
+|   |-- site_names.py
 |   `-- streamlit_app.py
 |-- tests/
 |-- docker-compose.yml
